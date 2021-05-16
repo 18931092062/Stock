@@ -17,15 +17,13 @@ def run_stock():
     if is_opening():
         start = datetime.time(9, 30, 0, 0)  # 开盘时间
         end = datetime.time(19, 1, 0, 0)  # 关盘时间
-        unique_code, waring_list = get_warning_data()  # 获取预警数据
-        print("唯一代码：", unique_code)
-        print("预警列表：", waring_list)
         while True:
             if start < datetime.datetime.now().time() < end:  # 判断时间
+                unique_code, waring_list = get_warning_data()  # 获取预警数据
                 price_list = sto.get_realtime_price(unique_code)  # 获取实时票数据
-                print(price_list)
+                print(waring_list)
                 monitoring_warning(price_list, waring_list)  # 检测
-                time.sleep(5)
+                time.sleep(30)
             else:
                 break
     return
@@ -49,11 +47,10 @@ def trigger(tri_type, reach_row, price_list):
     """触发预警,0高于，1低于"""
     n_id = reach_row["id"]
     fans_id = reach_row["fans_id"]
-    email = get_request("http://localhost/weixin/stock_list", {"type": "email", "user": fans_id})  # 获取email
-    print(email)
+    email = get_request("http://localhost/weixin/stock_list", {"type": "email", "user": fans_id})["email"]  # 获取email
     title = "%s(%s)价格预警" % (reach_row["stock_code"], price_list[2])
-    #更新数据库状态
-    #recipients = models.Fans.objects.values("email").filter(id=fans_id).first()  # 收件人
+    # 更新数据库状态
+    # recipients = models.Fans.objects.values("email").filter(id=fans_id).first()  # 收件人
     if tri_type == "1":
         content = "%s(%s)价格上涨到%s元，提醒你及时关注" % (
             reach_row["stock_code"], price_list[2], reach_row["warning_price"])
@@ -61,6 +58,7 @@ def trigger(tri_type, reach_row, price_list):
         content = "%s(%s)价格下跌到%s元，提醒你及时关注" % (
             reach_row["stock_code"], price_list[2], reach_row["warning_price"])
     send_emails(title, content, email)
+    post_request("http://localhost/weixin/stock_list", {"n_id": n_id})  # 设置该预警已经发送
 
 
 def get_warning_data():

@@ -5,9 +5,9 @@
 # @File    : email_helper.py
 # @Software: PyCharm
 
-import email.mime.multipart
-import email.mime.text
+from email.mime.text import MIMEText
 import smtplib
+from email.header import Header
 
 
 def send_emails(title, main_text, recipients):
@@ -18,14 +18,12 @@ def send_emails(title, main_text, recipients):
     :param recipients: 收件人
     :return:
     """
-    msg = email.mime.multipart.MIMEMultipart()
-    msg['Subject'] = title  # 题目
+    msg = MIMEText(main_text, 'plain', 'utf-8')  # 设置内容
+    msg['Subject'] = Header(title, 'utf-8')  # 题目
     msg['From'] = '18931092062@163.com'  # 发件人
     msg['To'] = recipients  # 收件人
-    txt = email.mime.text.MIMEText(main_text)  # 内容
-    msg.attach(txt)
-    smtp = smtplib.SMTP_SSL('smtp.163.com', '465')
-    smtp.login('18931092062@163.com', 'a12345678')
-    smtp.sendmail('18931092062@163.com', recipients, msg.as_string())
-    smtp.quit()
+    smtp = smtplib.SMTP("smtp.163.com", 25)  # SMTP协议默认端口是25
+    smtp.login('18931092062@163.com', 'LAVIVEJMBXXXANTN')  # 登录
+    smtp.sendmail('18931092062@163.com', recipients, msg.as_string())  # 发邮件
+    smtp.quit()  # 退出
     return '邮件发送成功email has send out !'

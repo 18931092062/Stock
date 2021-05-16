@@ -14,6 +14,10 @@ http://tushare.org/
 import tushare as ts
 
 
+pro = ts.pro_api('aa5e2aa0bdc49fa1bd215823252f681cb571bcf5041e3d3e8f464041')
+
+df = pro.cctv_news(date='20210514')
+print(df)
 class Stock:
     def __init__(self):
         self._pro = ts.pro_api('aa5e2aa0bdc49fa1bd215823252f681cb571bcf5041e3d3e8f464041')
